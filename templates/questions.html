@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pregunta {{ question_number }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Pregunta {{ question_number }} de {{ total_questions }}</h2>
+        <p class="question-text">{{ question.pregunta }}</p>
+        <form method="POST">
+            {% for key, value in question.opciones.items() %}
+                <label class="option-label">
+                    <input type="radio" name="option" value="{{ key }}" required>
+                    {{ key }}. {{ value }}
+                </label><br>
+            {% endfor %}
+            <input type="hidden" name="scores" value="{{ scores }}">
+            <button type="submit" class="button">Siguiente</button>
+        </form>
+    </div>
+</body>
+</html>
