@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session
+import json
 
 app = Flask(__name__)
 app.secret_key = 'tu_super_clave_secreta_aqui_cambiala!' # ¡IMPORTANTE: Cambia esto por una clave secreta fuerte y única!
@@ -92,45 +93,43 @@ def index():
 
 @app.route('/test', methods=['GET', 'POST'])
 def test():
-    if 'current_question_index' not in session:
-        return redirect(url_for('index')) # Redirigir si no hay un test en progreso
-
-    current_question_index = session.get('current_question_index')
-    scores = session.get('scores')
+    # Obtener el índice de la pregunta y los puntajes desde el formulario o query string
+    current_question_index = int(request.args.get('q', 0))
+    scores = request.form.get('scores')
+    if scores:
+        scores = json.loads(scores)
+    else:
+        scores = {'Ingenieria Informatica': 0, 'Derecho': 0, 'Medicina': 0}
 
     if request.method == 'POST':
         selected_option = request.form.get('option')
         if selected_option:
             current_question = questions[current_question_index]
-            # Actualizar los puntajes basados en la opción seleccionada
             for carrera, puntos in current_question['impacto_carrera'].get(selected_option, {}).items():
                 scores[carrera] += puntos
-
-            session['scores'] = scores
-            session['current_question_index'] += 1
-            return redirect(url_for('test'))
-        else:
-            # Si el usuario no selecciona una opción, puedes mostrar un mensaje de error
-            # o simplemente volver a la misma pregunta. Por simplicidad, aquí se vuelve a la pregunta.
-            pass
+            current_question_index += 1
+            if current_question_index < len(questions):
+                # Redirigir a la siguiente pregunta pasando los puntajes como JSON
+                return redirect(url_for('test', q=current_question_index, scores=json.dumps(scores)))
+            else:
+                # Todas las preguntas respondidas, mostrar resultado
+                recommended_career = max(scores, key=scores.get)
+                return render_template('result.html', scores=scores, recommended_career=recommended_career)
+        # Si no selecciona opción, vuelve a la misma pregunta
 
     if current_question_index < len(questions):
         question = questions[current_question_index]
-        return render_template('questions.html', question=question, question_number=current_question_index + 1, total_questions=len(questions))
+        return render_template(
+            'questions.html',
+            question=question,
+            question_number=current_question_index + 1,
+            total_questions=len(questions),
+            scores=json.dumps(scores)
+        )
     else:
-        # Si todas las preguntas han sido respondidas, ir a la página de resultados
-        return redirect(url_for('result'))
-
-@app.route('/result')
-def result():
-    scores = session.get('scores', {})
-    if not scores or sum(scores.values()) == 0:
-        return redirect(url_for('index')) # Redirigir si no hay puntajes válidos
-
-    # Determinar la carrera con el puntaje más alto
-    recommended_career = max(scores, key=scores.get)
-
-    return render_template('result.html', scores=scores, recommended_career=recommended_career)
+        # Si todas las preguntas han sido respondidas, mostrar resultado
+        recommended_career = max(scores, key=scores.get)
+        return render_template('result.html', scores=scores, recommended_career=recommended_career)
 
 if __name__ == '__main__':
     app.run(debug=True) # En producción, cambia debug=False
