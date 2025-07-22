@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados del Test</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>¡Tus Resultados Vocacionales!</h1>
+        <p>Basado en tus respuestas, estos son tus puntajes por carrera:</p>
+
+        <div class="scores">
+            {% for carrera, score in scores.items() %}
+                <p><strong>{{ carrera }}:</strong> {{ score }} puntos</p>
+            {% endfor %}
+        </div>
+
+        {% if recommended_career %}
+            <p class="recommendation">Tu carrera más compatible es: <strong>{{ recommended_career }}</strong></p>
+            <p>¡Explora más sobre esta emocionante área!</p>
+        {% else %}
+            <p class="recommendation">No pudimos determinar una recomendación clara. Por favor, intenta el test nuevamente.</p>
+        {% endif %}
+
+        <a href="{{ url_for('index') }}" class="button">Volver a Intentar</a>
+    </div>
+</body>
+</html>

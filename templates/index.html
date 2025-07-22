@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Vocacional</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>¡Bienvenido a tu Test Vocacional!</h1>
+        <p>Descubre cuál de estas carreras podría ser tu futuro ideal:</p>
+        <ul>
+            <li><strong>Ingeniería Informática</strong></li>
+            <li><strong>Derecho</strong></li>
+            <li><strong>Medicina</strong></li>
+        </ul>
+        <p>Responde con honestidad para obtener el mejor resultado.</p>
+        <a href="{{ url_for('test') }}" class="button">Comenzar Test</a>
+    </div>
+</body>
+</html>
